@@ -1,0 +1,54 @@
+{
+  "Held-out Constant Baseline": {
+    "mean_pred": 0.338117535147197,
+    "std_pred": 0.014215007280442489,
+    "mae_soft": 0.1982778429085987,
+    "rmse_soft": 0.24543206328366082,
+    "brier_soft": 0.06023689768767489,
+    "brier_binary_majority": 0.1882441841632981,
+    "pearson_r": -0.23525161915401438,
+    "pearson_pvalue": 0.10005687403845276,
+    "spearman_rho": -0.19405703701515217,
+    "spearman_pvalue": 0.17690023998279233,
+    "auroc_majority": 0.36013986013986016
+  },
+  "Qwen2.5-0.5B": {
+    "mean_pred": 0.7509026070138369,
+    "std_pred": 0.18646677055759667,
+    "mae_soft": 0.41521165893555256,
+    "rmse_soft": 0.469259408653846,
+    "brier_soft": 0.22020439261015728,
+    "brier_binary_majority": 0.43775641181233416,
+    "pearson_r": 0.48121192645470967,
+    "pearson_pvalue": 0.00040368864661231087,
+    "spearman_rho": 0.5680037304874217,
+    "spearman_pvalue": 1.6899313300093576e-05,
+    "auroc_majority": 0.752913752913753
+  },
+  "SmolLM2-1.7B": {
+    "mean_pred": 0.2530832863258017,
+    "std_pred": 0.02757962454046346,
+    "mae_soft": 0.17344790724844564,
+    "rmse_soft": 0.2505056913104187,
+    "brier_soft": 0.0627531013789108,
+    "brier_binary_majority": 0.16816052888707567,
+    "pearson_r": 0.27427832731400215,
+    "pearson_pvalue": 0.05391353993197333,
+    "spearman_rho": 0.3928847967616293,
+    "spearman_pvalue": 0.004767867487823025,
+    "auroc_majority": 0.668997668997669
+  },
+  "Two-Judge Ensemble": {
+    "mean_pred": 0.5019929466698193,
+    "std_pred": 0.09745992492490234,
+    "mae_soft": 0.24641664530902468,
+    "rmse_soft": 0.26693804307805447,
+    "brier_soft": 0.07125591884234125,
+    "brier_binary_majority": 0.23273564219751214,
+    "pearson_r": 0.4991514575949354,
+    "pearson_pvalue": 0.00022433715774312105,
+    "spearman_rho": 0.5902671192570708,
+    "spearman_pvalue": 6.431546728943121e-06,
+    "auroc_majority": 0.7517482517482518
+  }
+}

@@ -1,0 +1,58 @@
+\documentclass[conference]{IEEEtran}
+
+% Core Packages
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+% IEEEtran bibliography settings
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{TrustEval: An Empirical Study of Ensemble Reliability in Small Open-Weight LLM Safety Judges}
+
+% Author details placeholder (strictly anonymized / unconfirmed)
+\author{
+    \IEEEauthorblockN{[Author Names Redacted for Blind Review / Placeholder]}
+    \IEEEauthorblockA{\textit{[Department Placeholder]} \\
+    \textit{[Institution / Organization Placeholder]} \\
+    [City, Country Placeholder] \\
+    Email: [placeholder@institution.edu]}
+}
+
+\maketitle
+
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+\begin{IEEEkeywords}
+Large language models, LLM-as-a-judge, safety evaluation, ensemble reliability, calibration, open-weight language models.
+\end{IEEEkeywords}
+
+% Modular Sections
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_dataset_ground_truth}
+\input{sections/04_methodology_experimental_setup}
+\input{sections/05_results}
+\input{sections/06_discussion}
+\input{sections/07_limitations_ethics}
+\input{sections/08_conclusion}
+
+% References (IEEE sequential citation order)
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+% Appendices
+\appendices
+\input{appendices/appendix_a}
+\input{appendices/appendix_b}
+
+\end{document}

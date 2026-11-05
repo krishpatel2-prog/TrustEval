@@ -1,0 +1,126 @@
+# TrustEval Pre-Registered Experiment Configuration
+
+experiment:
+  name: "TrustEval_DICES350_Ensemble_Study"
+  version: "1.0.0"
+  seed: 20261103
+
+dataset:
+  name: "DICES-350"
+  url: "https://raw.githubusercontent.com/google-research-datasets/dices-dataset/b5596d9edd585361967991a591abc7b11fb1f7a3/350/diverse_safety_adversarial_dialog_350.csv"
+  readme_url: "https://raw.githubusercontent.com/google-research-datasets/dices-dataset/b5596d9edd585361967991a591abc7b11fb1f7a3/350/README.md"
+  expected_sha256: "63cb8620eb04e64957f9e45b1f7cb3d079c4eed8e8b28909f46e0b7038ce4301"
+  raw_file: "data/raw/diverse_safety_adversarial_dialog_350.csv"
+  processed_conversations: "data/processed/dices_350_conversations.parquet"
+  processed_targets: "data/processed/dices_350_targets.parquet"
+  total_conversations: 350
+  raw_raters_count: 123
+  filtered_raters_count: 104
+  removed_raters:
+    - "297514565398139"
+    - "297515609163939"
+    - "297515750682315"
+    - "297515617432733"
+    - "297541515566649"
+    - "297541515769980"
+    - "297515629971478"
+    - "297059995361243"
+    - "297541522412126"
+    - "297540556928761"
+    - "297541321453321"
+    - "297540562350921"
+    - "297540983991638"
+    - "297060365288109"
+    - "297514543980607"
+    - "297515729806999"
+    - "297541271027233"
+    - "296709611112092"
+    - "296709543131761"
+
+models:
+  primary_candidates:
+    - id: "Qwen/Qwen2.5-0.5B-Instruct"
+      family: "Qwen"
+      params: "0.49B"
+      revision: "main"
+      license: "Apache-2.0"
+      gated: false
+      unsafe_token: "Yes"
+      safe_token: "No"
+    - id: "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+      family: "SmolLM"
+      params: "1.71B"
+      revision: "main"
+      license: "Apache-2.0"
+      gated: false
+      unsafe_token: "Yes"
+      safe_token: "No"
+    - id: "meta-llama/Llama-3.2-1B-Instruct"
+      family: "Llama"
+      params: "1.23B"
+      revision: "main"
+      license: "Llama-3.2-Community"
+      gated: true
+      unsafe_token: "Yes"
+      safe_token: "No"
+  fallback_candidate:
+    id: "Qwen/Qwen2.5-1.5B-Instruct"
+    family: "Qwen"
+    params: "1.54B"
+    revision: "main"
+    license: "Apache-2.0"
+    gated: false
+    unsafe_token: "Yes"
+    safe_token: "No"
+
+prompt:
+  id: "TrustEval-R0"
+  file: "configs/prompts/safety_judge_v1.txt"
+  version: "1.0.0"
+  sha256: "15f18333a682867c36fc600aaa80898b6293f324fcabb240ba95f9279d2685df"
+  system_message: "You are a content safety evaluator."
+
+evaluation:
+  cv_folds: 5
+  stratify_column: "majority_label"
+  calibration:
+    method: "platt_logistic"
+    regularization_c: 1.0
+  bootstrap:
+    n_resamples: 2000
+    confidence_level: 0.95
+    seed: 20261103
+  metrics:
+    primary: "brier"
+    secondary:
+      - "jsd"
+      - "mae"
+      - "spearman"
+      - "auroc"
+    diagnostic:
+      - "ece_10"
+      - "kappa"
+
+disagreement:
+  primary_metric: "inter_judge_std"
+  secondary_metric: "binary_vote_entropy"
+  error_loss: "squared_error"
+  regression_covariates:
+    - "distance_from_boundary"
+    - "response_character_length"
+
+hardware:
+  device: "cpu"
+  dtype: "float32"
+  torch_threads: 4
+  sequential_loading: true
+  memory_limit_gb: 4.5
+  gc_between_models: true
+
+paths:
+  cache_dir: "cache"
+  logs_dir: "logs"
+  results_tables: "results/tables"
+  results_figures: "results/figures"
+  results_predictions: "results/predictions"
+

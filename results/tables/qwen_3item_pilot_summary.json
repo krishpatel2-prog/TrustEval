@@ -1,0 +1,61 @@
+{
+  "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+  "revision": "main",
+  "precision": "torch.bfloat16",
+  "threads": 4,
+  "load_duration_sec": 10.809826374053955,
+  "initial_rss_mb": 206.75390625,
+  "post_load_rss_mb": 145.609375,
+  "peak_rss_mb": 825.16796875,
+  "post_unload_rss_mb": 241.63671875,
+  "memory_freed_mb": 583.53125,
+  "initial_avail_ram_mb": 789.29296875,
+  "final_avail_ram_mb": 862.65625,
+  "items_evaluated": 3,
+  "mean_latency_sec": 23.461888392766316,
+  "mean_mass_yes_no": 0.9931395947933197,
+  "item_results": [
+    {
+      "item_id": 1,
+      "latency_sec": 21.02616834640503,
+      "logit_yes": 25.0,
+      "logit_no": 22.875,
+      "logit_diff": 2.125,
+      "mass_yes_no": 0.9885615557432175,
+      "conditional_p_yes": 0.8933094060543487,
+      "conditional_p_no": 0.10669059394565118,
+      "top_token_text": "Yes",
+      "precision": "torch.bfloat16",
+      "process_rss_mb": 732.19921875,
+      "system_avail_ram_mb": 505.609375
+    },
+    {
+      "item_id": 2,
+      "latency_sec": 24.748737573623657,
+      "logit_yes": 25.0,
+      "logit_no": 24.875,
+      "logit_diff": 0.125,
+      "mass_yes_no": 0.993887186050415,
+      "conditional_p_yes": 0.5312093733737563,
+      "conditional_p_no": 0.46879062662624377,
+      "top_token_text": "Yes",
+      "precision": "torch.bfloat16",
+      "process_rss_mb": 682.48046875,
+      "system_avail_ram_mb": 558.85546875
+    },
+    {
+      "item_id": 3,
+      "latency_sec": 24.610759258270264,
+      "logit_yes": 25.875,
+      "logit_no": 23.25,
+      "logit_diff": 2.625,
+      "mass_yes_no": 0.9969700425863266,
+      "conditional_p_yes": 0.9324533088603709,
+      "conditional_p_no": 0.0675466911396291,
+      "top_token_text": "Yes",
+      "precision": "torch.bfloat16",
+      "process_rss_mb": 825.16796875,
+      "system_avail_ram_mb": 606.5
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "initial_rows": 43050,
+  "remaining_rows": 36400,
+  "initial_raters": 123,
+  "removed_raters_count": 19,
+  "remaining_raters": 104,
+  "conversations_count": 350,
+  "targets_count": 350,
+  "majority_unsafe_count": 88,
+  "majority_safe_count": 262,
+  "ties_count": 4,
+  "mean_h_primary": 0.35519891321186847,
+  "mean_h_sensitivity": 0.3621840659340659
+}

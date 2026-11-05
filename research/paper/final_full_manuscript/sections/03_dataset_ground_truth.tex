@@ -1,0 +1,92 @@
+\section{Dataset and Ground Truth Formulation}
+\label{sec:dataset_ground_truth}
+
+\subsection{Benchmark Source: Google DICES-350}
+\label{sec:benchmark_source}
+
+To evaluate small open-weight LLMs on continuous human safety judgments, we employ the \textit{Diversity in Conversational AI Evaluation for Safety} (DICES) benchmark~\cite{aroyo2023dices}, specifically the adversarial conversational cohort \textbf{DICES-350} (pinned to Git commit \texttt{b5596d9edd585361967991a591abc7b11fb1f7a3}, released under the Creative Commons Attribution 4.0 International [CC BY 4.0] license). 
+
+DICES-350 comprises 350 multi-turn dialogues between human users and conversational AI systems. The benchmark was curated by Google Research to span benign inquiries, borderline contentious topics, and adversarial red-teaming prompts targeting content boundaries. Rather than reducing safety evaluation to a single annotator's verdict, DICES-350 collected an extensive pool of crowd ratings across five distinct safety sub-dimensions:
+\begin{enumerate}
+    \item \textit{Harmful Content} ($Q_2$): Danger, illegal acts, medical/legal advice, or sexually suggestive content.
+    \item \textit{Unfair Bias} ($Q_3$): Stereotyping or prejudice targeting race, gender, sexual orientation, religion, or socioeconomic status.
+    \item \textit{Misinformation} ($Q_4$): Factually false, misleading, or deceptive health and civic claims.
+    \item \textit{Political Affiliation} ($Q_5$): Unsolicited partisan political endorsements or stance-taking.
+    \item \textit{Policy Guidelines} ($Q_6$): Violations of established conversational policy and polarizing debates.
+\end{enumerate}
+Annotators also evaluated conversational intelligibility ($Q_1$) and provided a comprehensive item-level assessment ($Q_{\text{overall}}$) indicating whether the chatbot's final conversational turn was safe, unsafe, or unsure.
+
+\subsection{Sampling Procedure and Manifest Reproducibility}
+\label{sec:sampling_procedure}
+
+From the complete set of 350 DICES conversations, we extracted an evaluation sample of $N = 50$ dialogues using simple random sampling without replacement governed by a fixed pseudo-random number generator seed (\texttt{20261103}). The sampled item IDs were serialized to an immutable manifest file (\texttt{data/processed/dices\_50\_sample\_manifest.json}) recording exact item indices (spanning IDs 7 through 318).
+
+We emphasize that this sampling procedure was strictly unstratified. The 50-conversation sample was designed as an exploratory experimental suite to establish the computational feasibility, discriminative ranking, and error-uncertainty dynamics of sub-2B models under constrained CPU environments. Consequently, while the sample captures substantial hazard variance ($h_{\text{primary}} \in [0.0392, 0.9519]$), it must not be interpreted as statistically representative of the entire DICES-350 distribution.
+
+\subsection{Rater Filtering and Annotation Volume}
+\label{sec:rater_filtering}
+
+The raw DICES-350 corpus includes annotations from 123 crowd raters recruited by Google Research. Consistent with the dataset creators' official post-annotation quality audit, we apply the author-specified filter removing 19 anomalous annotator IDs recorded in \texttt{removed\_raters\_350} (raters who failed attention checks, exhibited uniform click patterns, or submitted completion times below physiological reading limits).
+
+Filtering excludes these 19 raters while retaining exactly 104 annotators per conversation across all items. Across the 50 sampled conversations, the evaluated corpus contains exactly $50 \times 104 = 5,200$ individual ratings. The ratings partition into:
+\begin{itemize}
+    \item \textbf{Decisive Ratings ($Y + N$):} 4,889 ratings ($94.02\%$), comprising 1,646 unsafe judgments ($Y$) and 3,243 safe judgments ($N$).
+    \item \textbf{Unsure Ratings ($U$):} 311 ratings ($5.98\%$) where annotators marked their assessment as ambiguous or borderline.
+\end{itemize}
+In adherence to research ethics and data privacy standards, no individual annotator identifiers, IP addresses, or demographic markers are linked to individual conversational outputs in our analysis.
+
+\subsection{Construction of Continuous Human Ground Truth}
+\label{sec:target_construction}
+
+Traditional LLM evaluation binarizes crowd ratings into an artificial majority threshold ($0$ or $1$). In contrast, TrustEval operationalizes safety as a continuous empirical spectrum reflecting the proportion of human evaluators who perceive a response as hazardous.
+
+For each conversation $i \in \{1, \dots, 50\}$, we define the \textbf{Primary Human Consensus Target} ($h_{\text{primary}, i}$) as the ratio of decisive unsafe votes to total decisive votes:
+\begin{equation}
+    h_{\text{primary}, i} = \frac{Y_i}{Y_i + N_i}
+    \label{eq:h_primary}
+\end{equation}
+where $Y_i$ is the count of retained raters voting ``Yes'' (unsafe) on $Q_{\text{overall}}$, and $N_i$ is the count voting ``No'' (safe). Unsure votes ($U_i$) are excluded from the denominator of $h_{\text{primary}, i}$ to capture the decisive human consensus proportion among raters willing to take a definitive stance.
+
+Across the 50-item sample, the primary target spans a broad empirical hazard range:
+\begin{equation}
+    \min(h_{\text{primary}}) = 0.0392, \quad \max(h_{\text{primary}}) = 0.9519
+\end{equation}
+The item-level macro mean is:
+\begin{equation}
+    \bar{h}_{\text{primary}} = \frac{1}{50}\sum_{i=1}^{50} h_{\text{primary}, i} = 0.3381 \quad (\sigma = 0.2417, \, s = 0.2442)
+\end{equation}
+where $\sigma$ denotes population standard deviation and $s$ denotes unbiased sample standard deviation. This macro average is distinguished from the pooled micro-average across all decisive votes:
+\begin{equation}
+    \frac{\sum_{i=1}^{50} Y_i}{\sum_{i=1}^{50} (Y_i + N_i)} = \frac{1,646}{4,889} = 0.3367
+\end{equation}
+The small divergence ($0.3381$ macro vs. $0.3367$ micro) arises because the decisive denominator ($Y_i + N_i = 104 - U_i$) varies across conversations (ranging from 86 to 104) due to item-varying Unsure counts.
+
+To test the sensitivity of evaluation results to the exclusion of Unsure ratings, we formulate an alternative \textbf{Sensitivity Target} ($h_{\text{sensitivity}, i}$) that assigns partial half-weight to ambiguous judgments:
+\begin{equation}
+    h_{\text{sensitivity}, i} = \frac{Y_i + 0.5 U_i}{Y_i + N_i + U_i}
+    \label{eq:h_sensitivity}
+\end{equation}
+Across the sample, $h_{\text{sensitivity}}$ ranges from $0.0481$ to $0.9519$. Because every conversation has exactly 104 total ratings ($Y_i + N_i + U_i = 104$), the item-level macro mean coincides identically with the pooled micro-average:
+\begin{equation}
+    \bar{h}_{\text{sensitivity}} = \frac{1,646 + 0.5(311)}{5,200} = \frac{1,801.5}{5,200} = 0.3464 \quad (\sigma = 0.2378)
+\end{equation}
+This represents an average upward shift of only $+0.0083$ ($+0.83$ percentage points) relative to $\bar{h}_{\text{primary}}$. We emphasize that this formulation serves strictly as a sensitivity analysis demonstrating ground-truth target stability under partial hazard weighting, rather than proof of the absence of all annotator bias.
+
+\subsection{Construct Validity: Logical Reduction of Overall Safety}
+\label{sec:construct_validity}
+
+To establish the construct validity of $h_{\text{primary}}$, we investigated how the aggregate question $Q_{\text{overall}}$ is derived from the five underlying safety dimensions ($Q_2$ through $Q_6$).
+
+Auditing the raw annotation records across all 43,050 responses in DICES-350 confirms that $Q_{\text{overall}}$ is a deterministic logical reduction of the five sub-axes. Specifically:
+\begin{enumerate}
+    \item An annotator verdict is marked $Q_{\text{overall}} = \text{``Yes''}$ if and only if at least one sub-axis is flagged as unsafe:
+    \begin{equation}
+        Q_{\text{overall}, i, r} = \text{``Yes''} \iff \bigvee_{k=2}^{6} \left( q_{k, i, r} = \text{``Yes''} \right)
+        \label{eq:logical_or}
+    \end{equation}
+    Across all 43,050 annotation rows, Eq.~\eqref{eq:logical_or} holds with exactly $100\%$ precision and recall (14,064 matching rows, 0 mismatches).
+    \item An annotator verdict is marked $Q_{\text{overall}} = \text{``No''}$ if and only if \textit{all five} sub-axes are evaluated as safe ($q_{k} = \text{``No''}$ for all $k \in \{2, \dots, 6\}$; 26,292 rows).
+    \item An annotator verdict is marked $Q_{\text{overall}} = \text{``Unsure''}$ if no sub-axis is flagged as unsafe, but at least one sub-axis is marked unsure (2,694 rows).
+\end{enumerate}
+
+Thus, $h_{\text{primary}, i}$ represents the empirical probability that a randomly sampled human crowd annotator will encounter at least one safety guideline violation within the five defined hazard categories. Crucially, we do not claim that $h_{\text{primary}}$ represents an absolute or objective ground truth of universal safety; rather, it operationalizes the sociodemographic consensus of the retained crowd rater pool under standardized rating guidelines.

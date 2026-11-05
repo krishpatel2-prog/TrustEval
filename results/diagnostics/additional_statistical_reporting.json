@@ -1,0 +1,108 @@
+{
+  "n_conversations": 50,
+  "n_unsafe_majority": 11,
+  "n_safe_majority": 39,
+  "paired_mae_differences": {
+    "qwen_minus_ensemble": {
+      "comparison": "Qwen MAE - Ensemble MAE",
+      "mean_diff": 0.16879501362652796,
+      "ci_95": [
+        0.11963762537625508,
+        0.21795240187680084
+      ],
+      "t_stat": 6.73018316236844,
+      "t_pval": 1.7371997535633213e-08,
+      "wilcoxon_stat": 146.5,
+      "wilcoxon_pval": 2.138259807908549e-06
+    },
+    "smollm_minus_ensemble": {
+      "comparison": "SmolLM2 MAE - Ensemble MAE",
+      "mean_diff": -0.07296873806057902,
+      "ci_95": [
+        -0.1330630095872514,
+        -0.01287446653390665
+      ],
+      "t_stat": -2.379906153538397,
+      "t_pval": 0.021253144164766404,
+      "wilcoxon_stat": 427.0,
+      "wilcoxon_pval": 0.04214493294246403
+    },
+    "qwen_minus_smollm": {
+      "comparison": "Qwen MAE - SmolLM2 MAE",
+      "mean_diff": 0.24176375168710695,
+      "ci_95": [
+        0.13904656445948127,
+        0.34448093891473264
+      ],
+      "t_stat": 4.613219716157554,
+      "t_pval": 2.8731851976259998e-05,
+      "wilcoxon_stat": 250.0,
+      "wilcoxon_pval": 0.00018350053479225788
+    }
+  },
+  "paired_mse_differences": {
+    "qwen_minus_ensemble": {
+      "comparison": "Qwen MSE - Ensemble MSE",
+      "mean_diff": 0.148948473767816,
+      "ci_95": [
+        0.11124174307096732,
+        0.1866552044646647
+      ],
+      "t_stat": 7.7423580137993255,
+      "t_pval": 4.741928537448031e-10,
+      "wilcoxon_stat": 88.0,
+      "wilcoxon_pval": 3.0854181432005134e-09
+    },
+    "smollm_minus_ensemble": {
+      "comparison": "SmolLM2 MSE - Ensemble MSE",
+      "mean_diff": -0.008502817463430462,
+      "ci_95": [
+        -0.0441771387455562,
+        0.02717150381869527
+      ],
+      "t_stat": -0.46715737340947816,
+      "t_pval": 0.6424580588157267,
+      "wilcoxon_stat": 473.0,
+      "wilcoxon_pval": 0.11393994202132163
+    },
+    "qwen_minus_smollm": {
+      "comparison": "Qwen MSE - SmolLM2 MSE",
+      "mean_diff": 0.15745129123124646,
+      "ci_95": [
+        0.08672686071588229,
+        0.22817572174661063
+      ],
+      "t_stat": 4.363478483523481,
+      "t_pval": 6.584503812330718e-05,
+      "wilcoxon_stat": 253.0,
+      "wilcoxon_pval": 0.00011903464815610221
+    }
+  },
+  "auroc_stratified_bootstrap_2000": {
+    "qwen_auroc_point": 0.752913752913753,
+    "qwen_auroc_95ci": [
+      0.5944055944055944,
+      0.8881410256410254
+    ],
+    "smollm_auroc_point": 0.668997668997669,
+    "smollm_auroc_95ci": [
+      0.511625874125874,
+      0.8158508158508159
+    ],
+    "ensemble_auroc_point": 0.7517482517482518,
+    "ensemble_auroc_95ci": [
+      0.6048951048951049,
+      0.8764568764568764
+    ],
+    "diff_ensemble_minus_qwen_point": -0.0011655011655011815,
+    "diff_ensemble_minus_qwen_95ci": [
+      -0.0524475524475525,
+      0.044289044289044344
+    ],
+    "diff_ensemble_minus_smollm_point": 0.08275058275058278,
+    "diff_ensemble_minus_smollm_95ci": [
+      -0.09090909090909094,
+      0.2599067599067598
+    ]
+  }
+}

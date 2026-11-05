@@ -1,0 +1,27 @@
+\section{Related Work}
+\label{sec:related_work}
+
+\subsection{Automated LLM-as-a-Judge and Robustness Limitations}
+\label{sec:rel_llm_judge}
+
+Instruction-tuned language models are widely employed as automated evaluators for open-ended NLP and dialogue benchmarks~\cite{chiang2023vicuna,zheng2023judging,wang2023pandalm}. However, recent literature reveals systematic vulnerabilities in automated judging. Commercial judges exhibit pervasive length, position, and self-enhancement biases~\cite{tan2025judgebench}, while evaluation alignment degrades sharply on subjective or ambiguous tasks~\cite{bavaresco2025llms}. Most critically, Schwinn et al.~\cite{schwinn2026coin} demonstrated that leading LLM judges collapse toward chance-level accuracy when evaluating adversarial perturbations and jailbreaks, underscoring the fragility of automated evaluations under distribution shifts. While prior audits focus on proprietary or medium-scale models on binary classifications, TrustEval investigates whether sub-2B open-weight models running locally on commodity CPUs can reliably approximate continuous multi-annotator safety consensus.
+
+\subsection{Safety Benchmarks and Multi-Annotator Disagreement}
+\label{sec:rel_safety_disagreement}
+
+Standard safety benchmarks—such as SafetyBench~\cite{zhang2024safetybench} and HarmBench~\cite{mazeika2024harmbench}—typically reduce multi-annotator ratings to binary labels, treating annotator variance as label noise. Conversely, human-centered machine learning establishes that disagreement often reflects legitimate demographic, cultural, and ethical divergence~\cite{basile2021we,davani2022dealing,rottger2022two}. Frameworks such as Disagreement Deconvolution~\cite{gordon2021disagreement} and Jury Learning~\cite{gordon2022jury} demonstrate the necessity of modeling multi-annotator distributions. In conversational safety, Aroyo et al.~\cite{aroyo2023dices} introduced the Diversity in Conversational AI Evaluation for Safety (DICES) benchmark, deliberately capturing granular crowd judgments across diverse demographic strata. Rather than collapsing evaluations into majority labels, TrustEval evaluates models directly against the continuous empirical hazard rate ($h_{\text{primary}} \in [0, 1]$) across 104 verified crowd annotators per item.
+
+\subsection{Model Calibration on Continuous Soft Targets}
+\label{sec:rel_calibration}
+
+A model is well-calibrated if its predicted probability corresponds to the empirical event frequency~\cite{brier1950verification}. While deep neural networks often suffer from miscalibration and overconfidence~\cite{guo2017calibration}, evaluating calibration on multi-annotator distributions requires extending Expected Calibration Error (ECE) and reliability diagrams to continuous soft targets ($h \in [0, 1]$)~\cite{ovadia2019can}. In this work, we compute decile Soft $\text{ECE}_{10}$ against continuous human consensus, diagnosing structural miscalibration across compact models and establishing the degenerate single-bin artifacts produced by naive prevalence baselines.
+
+\subsection{Multi-Model Ensembles and Disagreement in LLMs}
+\label{sec:rel_ensembles}
+
+Deep ensembling is a foundational approach for uncertainty quantification and predictive robustness~\cite{lakshminarayanan2017simple}. In language modeling, multi-agent juries have been proposed to mitigate individual model biases on instruction following and preference tasks~\cite{verga2024replacing,qian2026who,li2026calibrate,feng2026noisy,zhang2026can}. In compact models, Laddha et al.~\cite{laddha2026slmjury} introduced SLMJury to assess whether small-model panels (0.6B--14B) match frontier models on discrete preference benchmarks. However, existing work focuses on discrete voting and generative deliberation. TrustEval evaluates whether an ensemble of sub-2B off-the-shelf models executing deterministically on consumer CPUs can approximate continuous human safety consensus, and whether inter-judge disagreement ($\Delta$) serves as an informative candidate correlate for continuous prediction error.
+
+\subsection{Prior Reference Benchmark: Ali (2026)}
+\label{sec:rel_prior_benchmark}
+
+The direct empirical baseline for this study is the open-source benchmark \textit{Whose Safety Does an LLM Judge Reflect?} by Syed Omer Ali~\cite{ali2026whose}, which evaluated three small instruction-tuned models (\texttt{Qwen2.5-0.5B}, \texttt{Qwen2.5-1.5B}, and \texttt{SmolLM2-1.7B}) across Google DICES-350 and DICES-990. Ali uncovered marked behavioral divergence: Qwen2.5-0.5B achieved strong ranking discrimination ($\text{AUROC} = 0.72, \rho = 0.52$) alongside severe overprediction bias, whereas SmolLM2-1.7B exhibited extreme variance compression ($\mu \approx 0.28, \sigma \approx 0.04$) near dataset prevalence, and Qwen2.5-1.5B collapsed pathologically ($\text{AUROC} = 0.47$). While Ali evaluated models in isolation, the study did not examine ensembling, continuous multi-judge calibration, or error-uncertainty modeling. TrustEval bridges this gap by evaluating how combining Qwen2.5-0.5B and SmolLM2-1.7B negotiates the trade-off between discrimination and point error, and whether inter-judge disagreement correlates with evaluation error.

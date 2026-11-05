@@ -1,0 +1,106 @@
+\section{Dataset and Methodology}
+\label{sec:methodology}
+
+\subsection{Benchmark Source: Google DICES-350}
+\label{sec:benchmark_source}
+
+To evaluate small open-weight LLMs on continuous human safety judgments, we employ the \textit{Diversity in Conversational AI Evaluation for Safety} (DICES) benchmark~\cite{aroyo2023dices}, specifically the adversarial conversational cohort \textbf{DICES-350} (pinned to Git commit \texttt{b5596d9}, Creative Commons Attribution 4.0 International license). DICES-350 comprises 350 multi-turn user-chatbot dialogues curated by Google Research spanning benign, borderline, and adversarial red-teaming interactions. Annotations evaluate five safety sub-dimensions: Harmful Content ($Q_2$), Unfair Bias ($Q_3$), Misinformation ($Q_4$), Political Affiliation ($Q_5$), and Policy Guidelines ($Q_6$), alongside overall conversational safety ($Q_{\text{overall}}$: safe, unsafe, or unsure).
+
+\subsection{Sampling and Rater Filtering Protocol}
+\label{sec:sampling_and_raters}
+
+From DICES-350, we extracted a fixed evaluation sample of $N = 50$ dialogues via simple random sampling without replacement using a fixed seed (\texttt{20261103}), serialized in an immutable manifest (\texttt{data/processed/dices\_50\_sample\_manifest.json}). This unstratified sample captures substantial empirical hazard variance ($h_{\text{primary}} \in [0.0392, 0.9519]$) and serves as an exploratory suite to evaluate sub-2B models under constrained CPU execution.
+
+The raw DICES-350 dataset includes annotations from 123 crowd raters. In accordance with the official DICES post-annotation audit, we apply the author-specified exclusion filter removing 19 anomalous annotator IDs recorded in \texttt{removed\_raters\_350} (raters failing attention checks, exhibiting uniform clicking, or completing items below physiological reading limits). Filtering yields exactly 104 verified annotators per conversation across all 50 items, producing an evaluated corpus of $5,200$ total ratings ($50 \times 104$). Ratings partition into $4,889$ decisive votes ($94.02\%$; $1,646$ unsafe, $3,243$ safe) and $311$ unsure votes ($5.98\%$). In adherence to research ethics, all data are de-identified; no individual rater identifiers, demographic markers, or IP addresses are linked to dialogue transcripts.
+
+\subsection{Formulation of Continuous Human Consensus}
+\label{sec:target_construction}
+
+Rather than collapsing crowd ratings into a binary majority threshold, TrustEval evaluates models against the continuous empirical hazard rate. For conversation $i$, the \textbf{Primary Human Consensus Target} ($h_{\text{primary}, i}$) is the proportion of decisive unsafe votes among decisive ratings:
+\begin{equation}
+    h_{\text{primary}, i} = \frac{Y_i}{Y_i + N_i}
+    \label{eq:h_primary}
+\end{equation}
+where $Y_i$ and $N_i$ denote decisive unsafe (``Yes'') and safe (``No'') votes on $Q_{\text{overall}}$, respectively. Unsure ratings ($U_i$) are excluded from the denominator of $h_{\text{primary}}$ to reflect decisive stance-taking. Across the 50 conversations, $h_{\text{primary}}$ spans $[0.0392, 0.9519]$ with a macro-average of $\bar{h}_{\text{primary}} = 0.3381$ ($\sigma = 0.2417, s = 0.2442$) and a pooled micro-average of $1,646 / 4,889 = 0.3367$.
+
+To evaluate ground-truth sensitivity to ambiguous ratings, we formulate an alternative \textbf{Sensitivity Target} ($h_{\text{sensitivity}, i}$) assigning half-weight to unsure responses:
+\begin{equation}
+    h_{\text{sensitivity}, i} = \frac{Y_i + 0.5 U_i}{Y_i + N_i + U_i} = \frac{Y_i + 0.5 U_i}{104}
+    \label{eq:h_sensitivity}
+\end{equation}
+Across the sample, $\bar{h}_{\text{sensitivity}} = 0.3464$ ($\sigma = 0.2378$), representing a modest upward shift of $+0.0083$ ($+0.83$ percentage points) relative to $\bar{h}_{\text{primary}}$, confirming target stability under partial hazard weighting.
+
+\paragraph{Construct Validity of Overall Safety.}
+Auditing all 43,050 responses in DICES-350 confirms that $Q_{\text{overall}}$ is a deterministic logical reduction of the five sub-dimensions:
+\begin{equation}
+    Q_{\text{overall}, i, r} = \text{``Yes''} \iff \bigvee_{k=2}^{6} \left( q_{k, i, r} = \text{``Yes''} \right)
+    \label{eq:logical_or}
+\end{equation}
+Equation~\eqref{eq:logical_or} holds with exactly $100\%$ precision and recall across all annotation rows (14,064 matching rows, 0 mismatches). Thus, $h_{\text{primary}, i}$ represents the empirical probability that a randomly sampled human rater identifies at least one guideline violation within the defined categories.
+
+\subsection{Evaluated Models and Prompt Serialization}
+\label{sec:models_and_prompt}
+
+We evaluate two open-weight instruction-tuned language models with parameter counts under 2 billion (Apache 2.0 licenses):
+\begin{enumerate}
+    \item \textbf{Qwen2.5-0.5B-Instruct}~\cite{yang2024qwen25}: A 0.49B parameter causal model (vocabulary size 151,936) fine-tuned for conversational instruction following.
+    \item \textbf{SmolLM2-1.7B-Instruct}~\cite{allal2025smollm2}: A 1.71B parameter model (vocabulary size 49,152) trained on curated synthetic reasoning datasets, web corpora, and multi-turn instruction sets.
+\end{enumerate}
+
+Both models are evaluated zero-shot using a standardized prompt template, designated \texttt{TrustEval-R0} (hash \texttt{15f18333...}). The template specifies the evaluator role, provides the multi-turn context and final response, details the four core hazard categories, and concludes with a forced binary constraint: \textit{``Question: Is the chatbot's final response unsafe? Answer with exactly a single word: Yes or No.''} Input serialization applies each model's native chat template (\texttt{apply\_chat\_template(tokenize=False, add\_generation\_prompt=True)}), ensuring compliance with the native ChatML schema without external retrieval or few-shot exemplars.
+
+\subsection{Deterministic Next-Token Logit Scoring}
+\label{sec:logit_scoring}
+
+Rather than generating multi-token completions, TrustEval performs a single deterministic forward pass per dialogue, extracting next-token logits at the final prompt position (index $-1$). Model weights are loaded in \texttt{bfloat16}, and logits are explicitly upcast to \texttt{float32} on CPU for numerical stability: $\mathbf{z} = \text{logits}[0, -1, :].\text{to}(\text{float32})$. Target token IDs for the continuation words \texttt{``Yes''} and \texttt{``No''} are architecture-specific:
+\begin{itemize}
+    \item \textbf{Qwen2.5-0.5B-Instruct:} $v_{\text{Yes}} = 9454$, $v_{\text{No}} = 2753$.
+    \item \textbf{SmolLM2-1.7B-Instruct:} $v_{\text{Yes}} = 10539$, $v_{\text{No}} = 5230$.
+\end{itemize}
+The conditional unsafe probability $P(\text{Unsafe}) \in [0, 1]$ is extracted via a binary softmax over the candidate logits:
+\begin{equation}
+    P(\text{Unsafe}) = \frac{\exp(z_{\text{Yes}} - m)}{\exp(z_{\text{Yes}} - m) + \exp(z_{\text{No}} - m)}
+    \label{eq:p_unsafe}
+\end{equation}
+where $m = \max(z_{\text{Yes}}, z_{\text{No}})$. Across all 50 items, the combined probability mass over $\{v_{\text{Yes}}, v_{\text{No}}\}$ accounts for over $99.5\%$ of the total vocabulary softmax distribution in both models, confirming adherence to the binary constraint.
+
+\subsection{Ensemble and Disagreement Formulation}
+\label{sec:ensemble_formulation}
+
+The \textbf{Two-Judge Ensemble} prediction ($P_{\text{ens}, i}$) is formulated as the unweighted arithmetic mean of individual model probabilities:
+\begin{equation}
+    P_{\text{ens}, i} = \frac{P_{\text{qwen}, i} + P_{\text{smollm}, i}}{2}
+    \label{eq:p_ens}
+\end{equation}
+The \textbf{Inter-Judge Disagreement} ($\Delta_i$) is the absolute divergence between the two constituent judges:
+\begin{equation}
+    \Delta_i = |P_{\text{qwen}, i} - P_{\text{smollm}, i}|
+    \label{eq:delta}
+\end{equation}
+While $P_{\text{ens}}$ represents the pooled point estimate, $\Delta \in [0, 1]$ captures inter-model divergence.
+
+\subsection{Hardware and Execution Profile}
+\label{sec:hardware_profile}
+
+Inference was conducted entirely on commodity x86-64 CPU hardware across 4 execution threads (\texttt{torch.set\_num\_threads(4)}). Models ran under \texttt{torch.inference\_mode()} within a peak process memory footprint strictly below $1.2\text{ GB}$ resident set size (RSS; net memory footprint: $0.9\text{ GB}$ for Qwen, $1.1\text{ GB}$ for SmolLM2). The pipeline operated without GPU hardware or external network calls, establishing edge audit feasibility.
+
+\subsection{Evaluation Metrics and Baselines}
+\label{sec:metrics_and_baselines}
+
+We evaluate predictions against human consensus ($h_{\text{primary}}$) across three metric families:
+\begin{enumerate}
+    \item \textbf{Point Prediction Error:} Mean Absolute Error ($\text{MAE} = \frac{1}{N}\sum |P_i - h_i|$), Root Mean Squared Error ($\text{RMSE} = \sqrt{\frac{1}{N}\sum (P_i - h_i)^2}$), and Soft-Target Mean Squared Error ($\text{Soft MSE} = \text{RMSE}^2$, mathematically equivalent to the continuous Brier score~\cite{brier1950verification}).
+    \item \textbf{Probability Calibration:} Soft Expected Calibration Error ($\text{Soft ECE}_{10}$) across $K=10$ equal-width deciles:
+    \begin{equation}
+        \text{Soft ECE}_{10} = \sum_{k=1}^{10} \frac{N_k}{N} |\bar{p}_k - \bar{h}_k|
+        \label{eq:ece}
+    \end{equation}
+    where $N_k$ is the item count in bin $k$, and $\bar{p}_k$ and $\bar{h}_k$ denote bin mean prediction and mean human consensus, respectively.
+    \item \textbf{Ranking Discrimination:} Pearson linear correlation ($r$), Spearman rank correlation ($\rho$), and majority-consensus discrimination ($\text{AUROC}$) evaluated over the 11 majority-unsafe ($h_{\text{primary}} \ge 0.5$) and 39 majority-safe items ($429$ pairs).
+\end{enumerate}
+
+\paragraph{Held-Out Prevalence Baseline.}
+To determine whether models extract dialogue-specific signal beyond base rates, we construct a 5-fold cross-validated prevalence baseline. The 50 items are partitioned into 5 folds of 10 items, stratified on majority consensus ($y = \mathbf{1}(h \ge 0.5)$). For each fold, out-of-fold items are predicted using the mean training prevalence ($\bar{h}_{\text{train}, -k}$). This yields fold-varying out-of-fold predictions ($\mu = 0.3398, \sigma = 0.0142$) mapping to a single decile bin ($[0.3, 0.4)$), resulting in a non-zero single-bin $\text{ECE}_{10} = |0.3398 - 0.3381| = 0.0017$ (unlike in-sample constant prediction which produces an artifactual $\text{ECE}=0.0000$).
+
+\paragraph{Statistical Testing and Uncertainty Auditing.}
+Pairwise error differences are assessed via paired two-tailed $t$-tests, exact binomial sign tests, and Wilcoxon signed-rank tests ($W$) with step-down Holm-Bonferroni multiplicity correction ($p_{\text{adj}}$). To evaluate rater sampling variability, we implement rater-cluster bootstrapping ($B=1,000$ resamples over the 104 annotator IDs), complemented by item-level bootstrapping ($B=2,000$ resamples over conversations). Disagreement predictive utility is evaluated via nested ordinary least squares (OLS) regression controlling for response length and ensemble prediction, accompanied by 5-fold cross-validated variance explained ($\Delta R^2_{\text{OOF}}$).

@@ -1,0 +1,16 @@
+{
+  "n_samples": 50,
+  "pearson_r": 0.3125251769812323,
+  "pearson_pvalue": 0.027128315618794745,
+  "spearman_rho": 0.23018542947917442,
+  "spearman_pvalue": 0.1077986976458822,
+  "r2_baseline_in_sample": 0.05431245710471222,
+  "r2_extended_in_sample": 0.15818451990639915,
+  "delta_r2_in_sample": 0.10387206280168693,
+  "f_statistic": 5.675964628669366,
+  "f_pvalue": 0.021388315382357602,
+  "r2_baseline_oof": 0.029761864375980163,
+  "r2_extended_oof": 0.11025175731367365,
+  "delta_r2_oof": 0.08048989293769349,
+  "disagreement_coef": 0.6269555290291361
+}

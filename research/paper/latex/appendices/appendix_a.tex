@@ -1,0 +1,13 @@
+\section{Crowd Annotator Quality Filtering Protocol}
+\label{app:annotators}
+
+In accordance with Section~\ref{sec:rater_filtering}, our evaluation protocol adopts the post-annotation quality filtering criteria specified by the Google DICES-350 dataset authors~\cite{aroyo2023dices}. The raw annotation pool for DICES-350 contains ratings from 123 unique crowd workers. During dataset construction, the original creators identified anomalous rating patterns (e.g., straight-lining, extreme speed outliers, or failed attention checks), cataloging 19 crowd annotators in the exclusion set \texttt{removed\_raters\_350}.
+
+To ensure absolute construct validity and consistency with established DICES evaluation standards~\cite{ali2026whose}, these 19 raters are excluded prior to consensus calculation. Across the 50 conversations in our benchmark sample, filtering these 19 raters leaves exactly 104 verified annotators per conversation, yielding $5,200$ total ratings ($4,889$ decisive votes and $311$ unsure responses).
+
+For reproducibility, the 19 excluded crowd annotator identifiers are:
+\begin{quote}
+\texttt{\small
+297514565398139, 297515609163939, 297515750682315, 297515617432733, 297541515566649, 297541515769980, 297515629971478, 297059995361243, 297541522412126, 297540556928761, 297541321453321, 297540562350921, 297540983991638, 297060365288109, 297514543980607, 297515729806999, 297541271027233, 296709611112092, 296709543131761.}
+\end{quote}
+All remaining statistical analyses across this paper operate strictly on the $104$ retained annotators.

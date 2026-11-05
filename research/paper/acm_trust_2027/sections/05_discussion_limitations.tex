@@ -1,0 +1,71 @@
+\section{Discussion, Implications, and Limitations}
+\label{sec:discussion}
+
+The empirical findings from Section~\ref{sec:results} characterize the operational trade-offs of sub-2B open-weight language models deployed as localized safety judges. In this section, we synthesize findings across our research questions, explore the decoupling of ranking from calibration, assess the boundaries of inter-judge disagreement, and evaluate practical implications for edge auditing alongside ethical limitations.
+
+\subsection{The Ensemble Reliability Trade-Off (RQ1 \& RQ2)}
+\label{subsec:disc_ensemble_tradeoff}
+
+Our primary evaluation demonstrates that equal-weight ensembling between structurally distinct sub-2B models alters evaluator reliability, but does not represent a universal panacea across all performance criteria.
+
+Individual small models exhibit diametrically opposed operational biases. \texttt{Qwen2.5-0.5B-Instruct} acts as an aggressively risk-averse classifier ($\bar{P}=0.7509$), substantially overshooting the human consensus baseline ($\bar{h}=0.3381$) and incurring severe point penalties ($\text{MAE}=0.4152$, $\text{Soft MSE}=0.2202$). Conversely, \texttt{SmolLM2-1.7B-Instruct} exhibits severe variance compression, restricting its predictions to a narrow band ($\bar{P}=0.2531, s=0.0279$) clustered near benchmark prevalence.
+
+Averaging these polarized predictors into an unweighted ensemble ($P_{\text{ens}}$) mitigates Qwen's positive hazard bias, yielding an intermediate mean prediction of $0.5020$. This combination achieves a $40.6\%$ reduction in MAE ($0.4152 \to 0.2464$) and a $67.6\%$ reduction in Soft MSE ($0.2202 \to 0.0713$), confirming that architectural diversity enables mutual cancellation of systematic bias components~\cite{lakshminarayanan2017simple,ovadia2019can}.
+
+Crucially, however, the ensemble does not dominate every individual evaluator or reference baseline:
+\begin{enumerate}
+    \item \textbf{Lowest Point MAE Belongs to SmolLM2:} SmolLM2 achieves an MAE of $0.1734$, significantly lower than the ensemble's $0.2464$ in parametric testing ($t=-2.38, p_{\text{Holm}}=0.0425$) and sign testing ($36$ items favored SmolLM2 vs. $14$ for the ensemble, $p=0.0026$). SmolLM2 achieves this low error by anchoring near the empirical prevalence of the benchmark, exploiting the concentration of human mass below $0.5$.
+    \item \textbf{Lowest Squared Error Belongs to the Prevalence Baseline:} The held-out 5-fold OOF prevalence baseline achieves an $\text{RMSE}$ of $0.2454$ and a $\text{Soft MSE}$ of $0.0602$, outperforming both the ensemble ($0.2669$ and $0.0713$) and SmolLM2 ($0.2505$ and $0.0628$). Quadratic loss functions heavily penalize variance, allowing a static prevalence estimate to mathematically minimize expected squared residual error on imbalanced distributions.
+\end{enumerate}
+
+These findings demonstrate that ensembling cannot be assumed to improve every dimension of evaluation quality simultaneously. While ensembling moderates extreme probability excursions, practitioners must recognize that point loss minimization (e.g., MSE or MAE) can reward conservative prevalence anchoring rather than genuine semantic safety comprehension.
+
+\subsection{Decoupling Correlation, Ranking, and Calibration}
+\label{subsec:disc_correlation_ranking_calibration}
+
+Our evaluation exposes a fundamental decoupling among three frequently conflated evaluation properties: linear/monotonic correlation, absolute calibration, and discriminative ranking.
+\begin{itemize}
+    \item \textbf{High Ranking Sensitivity Coexists with Poor Calibration:} Qwen ranks conversational hazards with substantial fidelity ($\rho=0.5680, p=1.69\times 10^{-5}$; $\text{AUROC}=0.7529$), yet it exhibits extreme miscalibration ($\text{ECE}_{10}=0.4128$), overpredicting hazard in every single populated decile bin. Qwen successfully identifies relative danger across conversations, but its raw output cannot be interpreted as a well-calibrated posterior probability.
+    \item \textbf{Low Point Error Coexists with Degraded Discrimination:} Conversely, SmolLM2 achieves the lowest MAE ($0.1734$) and a superficially low $\text{ECE}_{10}$ ($0.0850$), but exhibits degraded discriminative separation ($\text{AUROC}=0.6690$) and a marginally non-significant Pearson correlation ($r=0.2743, p=0.0539$). By compressing $96\%$ of its predictions into the single decile $[0.2, 0.3)$, SmolLM2 minimizes residuals while sacrificing granular discriminative ranking.
+    \item \textbf{Ensemble Optimizes Relative Ordering:} The Two-Judge Ensemble captures the strongest linear and monotonic association with continuous human consensus across all evaluated models ($r=\mathbf{0.4992}$, $\rho=\mathbf{0.5903}$), while matching Qwen's majority-label discrimination ($\text{AUROC}=0.7517$, $\Delta\text{AUROC}=-0.0012$, $95\%$ CI: $[-0.0524, +0.0443]$). However, the ensemble remains systematically miscalibrated ($\text{ECE}_{10}=0.1639$), overpredicting in all 6 populated deciles.
+\end{itemize}
+
+Furthermore, scalar ECE metrics are easily distorted by bin occupancy distributions. An evaluator that collapses all predictions into a single decile containing the sample mean produces an ECE approaching zero ($0.0017$ in 5-fold OOF; $0.0000$ in-sample). Treating this single-bin aggregation artifact as evidence of superior calibration is mathematically deceptive.
+
+\subsection{Diagnostic Utility and Failure Modes of Disagreement (RQ3)}
+\label{subsec:disc_disagreement_implications}
+
+The relationship between inter-judge disagreement ($\Delta$) and ensemble error ($E$) provides critical insights for assurance:
+\begin{enumerate}
+    \item \textbf{Exploratory Bivariate Signal:} While the linear association between $\Delta$ and $E$ is nominally significant ($r=0.3125, p=0.0271$), monotonic rank correlation is not statistically significant ($\rho=0.2302, p=0.1078$). This divergence indicates that while higher disagreement is associated on average with elevated prediction error, the relationship is subject to heteroscedastic scatter; disagreement does not cleanly order errors at an item-by-item level.
+    \item \textbf{Incremental Explanatory Power:} In nested OLS regressions controlling for dialogue length and predicted probability, adding $\Delta$ accounts for an incremental $10.39\%$ of in-sample error variance ($F(1, 46)=5.676, p=0.0214$) and an out-of-fold descriptive gain of $\Delta R^2_{\text{OOF}}=+0.0805$ across 5-fold cross-validation.
+    \item \textbf{Candidate Correlate, Not Validated Uncertainty:} Inter-judge disagreement represents an empirical candidate error correlate, not a formal measure of Bayesian epistemic uncertainty~\cite{malinin2018predictive,kuhn2023semantic} or a calibrated confidence score.
+    \item \textbf{Shared Failure Modes:} A critical conceptual limitation is that low disagreement ($\Delta \approx 0$) does not guarantee safety correctness. As shown in Figure~\ref{fig:disagreement}, multiple items with $\Delta < 0.20$ incur ensemble errors exceeding $0.20$. Small open-weight models trained on overlapping web corpora frequently share pretraining heuristics and blind spots. When both judges fail on identical linguistic subtleties, inter-judge disagreement collapses near zero, concealing evaluation errors.
+\end{enumerate}
+
+These findings inform selective human-in-the-loop escalation workflows. While routing high-disagreement cases ($\Delta \ge \tau$) to human adjudicators offers a promising mechanism for focusing manual review, the escalation threshold $\tau$ remains uncalibrated. Deploying such a system without independent validation risks creating false confidence in low-disagreement regimes.
+
+\subsection{Edge-Auditing Feasibility vs. Operational Readiness}
+\label{subsec:disc_practical_implications}
+
+TrustEval demonstrates that deterministic dual-model evaluation is computationally accessible on commodity consumer hardware: models contain $<2\text{B}$ parameters, execute entirely on CPU within $<1.2\text{ GB}$ RSS per process, and operate locally without third-party network transmissions.
+
+However, we draw an absolute boundary between \textit{demonstrated computational feasibility} and \textit{deployment readiness}. Small open-weight models remain susceptible to prompt sensitivity and calibration drift. They are well-suited as preliminary, high-throughput triage filters in offline auditing or research workflows, but are categorically not ready for autonomous, unsupervised safety governance in consequential deployment settings.
+
+\subsection{Limitations and Ethical Considerations}
+\label{sec:limitations_ethics}
+
+\paragraph{Sample Size and Topical Scope.}
+Our experimental analysis evaluates a fixed sample of $N=50$ conversations drawn from Google DICES-350 via simple random sampling. While random sampling preserves unbiased expectation, it does not enforce demographic stratification across topics. The benchmark contains $11$ majority-unsafe conversations ($22\%$) and $39$ majority-safe conversations ($78\%$), yielding wide marginal confidence intervals for individual AUROCs (e.g., Qwen AUROC 95\% CI: $[0.5944, 0.8881]$). Findings should be interpreted as an exploratory study of sub-2B edge evaluation rather than an exhaustive assessment across all conversational domains.
+
+\paragraph{Ground-Truth and Construct Validity.}
+Human conversational safety ratings do not represent an absolute moral ground truth. In DICES-350, human targets represent the aggregated consensus of a diverse pool of crowd raters. Our primary consensus formulation ($h_{\text{primary}} = \frac{Y}{Y+N}$) treats Unsure ratings ($311$ votes across 50 items) as uninformative regarding binary valence. While our sensitivity target ($h_{\text{sensitivity}} = \frac{Y+0.5U}{104}$) demonstrates high concordance (means $0.3381$ vs. $0.3464$), assigning half-weight remains a modeling heuristic. Furthermore, ratings were generated by a shared cohort of 104 retained annotators; while our rater-cluster bootstrap ($B=1,000$) models this covariance for error metrics, OLS regression treats items as independent observations.
+
+\paragraph{Model Scope and Prompt Boundaries.}
+We evaluated exactly two sub-2B architectures (\texttt{Qwen2.5-0.5B-Instruct} and \texttt{SmolLM2-1.7B-Instruct}). Observed behaviors may reflect specific instruction-tuning recipes rather than universal scaling laws. To ensure determinism and bounded memory, we extracted next-token logits without chain-of-thought generation, precluding multi-step reasoning. We evaluated an unweighted arithmetic ensemble ($w_1 = w_2 = 0.5$); learned weight tuning was avoided to prevent overfitting on $N=50$ items.
+
+\paragraph{Statistical Power and Test Sensitivity.}
+While the Pearson correlation between disagreement and error is nominally significant ($r=0.3125, p=0.0271$), Spearman rank correlation did not achieve nominal significance ($\rho=0.2302, p=0.1078$). A power calculation under Fisher's $z$-transformation indicates that detecting $\rho=0.2302$ with $80\%$ power at $\alpha=0.05$ requires $N \ge 146$ conversations. Additionally, paired error differences depart from normality (Shapiro-Wilk $W=0.8776, p=9.47\times 10^{-5}$); while the paired $t$-test indicates significance after Holm correction ($p_{\text{Holm}}=0.0425$), the non-parametric Wilcoxon test yields an adjusted $p_{\text{Holm}}=0.0843$, confirming that claiming unambiguous ensemble superiority on absolute error is statistically unwarranted.
+
+\paragraph{Ethical Use and Secondary Data Integrity.}
+Small open-weight models inherit pretraining biases and must never be deployed as sole, autonomous gatekeepers in high-stakes governance. All research in this study utilizes publicly available, anonymized benchmark data (Google DICES-350, CC BY 4.0). No human subjects were recruited or contacted, and no private records were processed.

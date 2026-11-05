@@ -1,0 +1,69 @@
+\section{Related Work}
+\label{sec:related_work}
+
+\subsection{Automated LLM-as-a-Judge Paradigms}
+\label{sec:rel_llm_judge}
+
+The concept of leveraging instruction-tuned language models as automated evaluators emerged alongside conversational assistants~\cite{chiang2023vicuna} and was formalized by Zheng et al.~\cite{zheng2023judging} through MT-Bench and Chatbot Arena. Subsequent frameworks, such as PandaLM~\cite{wang2023pandalm}, demonstrated that LLMs could evaluate instruction-following quality with moderate human agreement. However, as automated judging expanded into high-stakes safety and capability evaluation, recent literature has exposed fundamental vulnerabilities in the LLM-as-a-judge paradigm.
+
+Tan et al.~\cite{tan2025judgebench} introduced JudgeBench, revealing that commercial judges frequently rely on spurious heuristics, including length bias, position bias, and self-enhancement bias (favoring their own generated completions). In an extensive empirical evaluation across 20 distinct NLP evaluation tasks, Bavaresco et al.~\cite{bavaresco2025llms} established that while frontier models correlate moderately with human judgments on simple lexical tasks, their alignment degrades significantly on complex subjective tasks requiring nuanced pragmatic interpretation. Most critically, Schwinn et al.~\cite{schwinn2026coin} demonstrated that state-of-the-art LLM judges fail catastrophically when evaluating adversarial robustness and jailbreak prompts, with classification performance collapsing toward random chance (``a coin flip'') due to semantic perturbation sensitivity. While Schwinn et al. audit binary robustness classifications across frontier and medium-scale models, TrustEval investigates whether an ensemble of sub-2B models can approximate continuous human safety consensus on conversational dialogues, and whether inter-judge disagreement correlates with evaluation error.
+
+\subsection{Safety Benchmarks and Crowdsourced Disagreement}
+\label{sec:rel_safety_disagreement}
+
+Automated safety evaluation has been driven by standardized benchmarks such as SafetyBench~\cite{zhang2024safetybench} and HarmBench~\cite{mazeika2024harmbench}. However, conventional benchmarks universally aggregate multi-annotator ratings into single majority-vote binary labels ($0$ or $1$), treating annotator disagreement as unstructured label noise.
+
+A growing body of human-centered machine learning literature argues that human disagreement is not mere noise, but a reflection of legitimate sociodemographic, cultural, and ethical divergence~\cite{basile2021we,davani2022dealing,rottger2022two}. Gordon et al.~\cite{gordon2021disagreement} introduced disagreement deconvolution to align model predictions with high-disagreement contexts, while Jury Learning~\cite{gordon2022jury} explicitly architectures classifiers to model diverse annotator compositions. In conversational safety, Aroyo et al.~\cite{aroyo2023dices} introduced the Diversity in Conversational AI Evaluation for Safety (DICES) benchmark, deliberately capturing granular crowd judgments across diverse demographic strata. In TrustEval, rather than binarizing annotations into an artificial consensus, we formulate our target as the continuous empirical hazard rate ($h_{\text{primary}} \in [0, 1]$) across 104 verified crowd raters per dialogue.
+
+\subsection{Model Calibration, Soft Labels, and Expected Calibration Error}
+\label{sec:rel_calibration}
+
+In classification systems, a model is well-calibrated if its predicted probability reflects the true long-run empirical frequency of the event~\cite{brier1950verification}. Guo et al.~\cite{guo2017calibration} established that modern deep neural networks, despite achieving superior classification accuracy, suffer from severe miscalibration and overconfidence. Evaluating calibration typically relies on Expected Calibration Error (ECE) and reliability diagrams, which partition predictions into equal-width bins and compare mean confidence against empirical accuracy.
+
+While standard ECE assumes hard binary labels ($y \in \{0, 1\}$), evaluating models against multi-annotator distributions requires extending calibration to continuous soft targets ($h \in [0, 1]$). Under dataset shift and challenging dialogue conditions, predictive probabilities frequently drift far from empirical targets~\cite{ovadia2019can}. In TrustEval, we compute decile Soft ECE-10 over continuous human targets, revealing structural calibration anomalies—including severe overprediction in Qwen2.5-0.5B and degenerate single-bin artifacts in prevalence baselines.
+
+\subsection{Multi-Model Ensembles and Disagreement in LLMs}
+\label{sec:rel_ensembles}
+
+Deep ensembling, pioneered by Lakshminarayanan et al.~\cite{lakshminarayanan2017simple}, is recognized as an effective and scalable approach for predictive uncertainty estimation and out-of-distribution robustness. In language modeling, uncertainty quantification has largely focused on semantic entropy across stochastic generations from a single checkpoint~\cite{kuhn2023semantic,malinin2018predictive}.
+
+More recently, multi-model panels have been adapted to evaluation. Verga et al.~\cite{verga2024replacing} demonstrated that replacing individual judges with panels of diverse LLMs mitigates individual model biases on instruction-following benchmarks. Qian et al.~\cite{qian2026who} developed LLM-as-a-Jury, combining multiple frontier judges to improve comparative assessment on MT-Bench. Concurrently, theoretical frameworks by Li~\cite{li2026calibrate} and Feng et al.~\cite{feng2026noisy} demonstrated that pooling predictions from imperfect, noisy judges can yield statistically consistent population estimates when individual error distributions are properly accounted for. Zhang et al.~\cite{zhang2026can} explored multi-judge ensembles for bias calibration across capability dimensions.
+
+In the domain of small language models, Laddha et al.~\cite{laddha2026slmjury} introduced SLMJury, investigating whether panels of compact models (0.6B to 14B parameters) can match frontier model quality on discrete preference benchmarks. However, SLMJury focuses on discrete voting and generative deliberation for general NLP tasks. TrustEval uniquely explores whether an ensemble of sub-2B off-the-shelf models executing on consumer CPU hardware can approximate continuous multi-annotator safety consensus, and whether the inter-judge disagreement ($\Delta$) between diverse architectures serves as an exploratory candidate correlate for continuous prediction error.
+
+\begin{table*}[t]
+\centering
+\caption{Systematic Comparison of Automated LLM Evaluation Frameworks}
+\label{tab:framework_comparison}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Framework} & \textbf{Target Models} & \textbf{Target Formulation} & \textbf{Uncertainty Signal} & \textbf{Hardware Profile} & \textbf{Venue / Status} \\
+\midrule
+MT-Bench / Arena~\cite{zheng2023judging} & Frontier (GPT-4) & Pairwise / Likert & None & Cloud APIs & NeurIPS 2023 \\
+PandaLM~\cite{wang2023pandalm} & 7B--13B Fine-tuned & Categorical (Win/Tie/Loss) & None & GPU Cluster & ICLR 2024 \\
+HarmBench~\cite{mazeika2024harmbench} & 13B--70B Open / Frontier & Binary Classification ($0/1$) & None & GPU Cluster & ICML 2024 \\
+Coin Flip for Safety~\cite{schwinn2026coin} & 7B--70B / Frontier & Binary Robustness ($0/1$) & None & GPU / Cloud & ICML 2026 \\
+LLM-as-a-Jury~\cite{qian2026who} & Frontier Panels & Discrete Majority Vote & Vote Entropy & Cloud APIs & ICML 2026 \\
+SLMJury~\cite{laddha2026slmjury} & 0.6B--14B SLM Panels & Discrete / Generation & Deliberation Split & GPU / Local & arXiv:2602.04321 \\
+Whose Safety Judge~\cite{ali2026whose} & 0.5B--1.7B Single Judges & Continuous ($h \in [0, 1]$) & None (Single Model) & CPU (FP32) & Reference Benchmark \\
+\textbf{TrustEval (Ours)} & \textbf{Sub-2B SLM Ensemble} & \textbf{Continuous ($h_{\text{primary}} \in [0, 1]$)} & \textbf{Candidate Correlate ($\Delta$)} & \textbf{Consumer CPU ($<1.2$ GB)} & \textbf{Present Study} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Prior Reference Benchmark: Whose Safety Does an LLM Judge Reflect?}
+\label{sec:rel_prior_benchmark}
+
+The direct empirical baseline and precursor to this study is the open-source evaluation benchmark \textit{Whose Safety Does an LLM Judge Reflect?}, authored by Syed Omer Ali~\cite{ali2026whose}. Ali pre-registered and evaluated three small open-weight instruction-tuned models—\texttt{Qwen2.5-0.5B-Instruct}, \texttt{Qwen2.5-1.5B-Instruct}, and \texttt{SmolLM2-1.7B-Instruct}—across the complete cohorts of both Google DICES datasets (350 conversations in DICES-350 and 990 conversations in DICES-990; 1,340 total dialogues). Ali's protocol extracted deterministic next-token logits over the candidate set $\{\text{``Yes''}, \text{``No''}\}$ under native chat templates without free-form generation.
+
+Ali's benchmark uncovered three critical empirical findings that directly motivated our investigation:
+\begin{enumerate}
+    \item \textbf{High Discrimination vs. Severe Bias in Qwen2.5-0.5B:} On DICES-350, Qwen2.5-0.5B exhibited strong monotonic ranking ($\text{Spearman } \rho = 0.52$, $\text{AUROC} = 0.72$), achieving a positive Brier Skill Score ($\text{BSS} = +0.18$ relative to a cross-dataset constant guess of $0.262$). However, on DICES-990, its BSS dropped precipitously to $-0.70$ due to severe overprediction bias (mean prediction $0.37$ vs. human average $0.26$).
+    \item \textbf{Prevalence Anchoring vs. Limited Discrimination in SmolLM2-1.7B:} Although SmolLM2-1.7B recorded positive BSS values across both datasets ($+0.10$ on DICES-350, $+0.15$ on DICES-990), its binary discrimination was weak ($\text{AUROC} = 0.58$ and $0.54$, respectively). Its predictions exhibited severe variance compression ($\mu \approx 0.28\text{--}0.29, \sigma \approx 0.04\text{--}0.05$), with no item receiving $P(\text{Unsafe}) > 0.5$. It outperformed the external baseline primarily because its near-constant output aligned closely with empirical dataset prevalence, despite retaining modest monotonic signal ($\rho = 0.26$ on DICES-350).
+    \item \textbf{Pathological Inversion in Qwen2.5-1.5B:} Surprisingly, Qwen2.5-1.5B collapsed on DICES-350, ranking conversations at or below chance ($\text{AUROC} = 0.47, \rho = -0.12, \text{BSS} = -0.83$). When prompted with reversed polarity (asking if the response was safe), the model inverted human rankings entirely ($\text{AUROC} = 0.33, \rho = -0.41$).
+\end{enumerate}
+
+\subsection{TrustEval Positioning and Research Gap}
+\label{sec:rel_positioning}
+
+While Ali~\cite{ali2026whose} evaluated individual models in isolation, the study did not examine ensembling, multi-judge calibration, or error prediction. As summarized in Table~\ref{tab:framework_comparison}, TrustEval directly bridges this gap. By combining the strong discriminative sensitivity of Qwen2.5-0.5B with the conservative prevalence calibration of SmolLM2-1.7B, we investigate whether an equal-weight sub-2B ensemble can simultaneously mitigate prediction bias, improve continuous ranking, and assess whether inter-judge disagreement ($\Delta$) correlates with ensemble prediction error as a candidate uncertainty heuristic on local CPU hardware.

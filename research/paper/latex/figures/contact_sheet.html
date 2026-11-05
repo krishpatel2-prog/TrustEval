@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TrustEval — Phase 2B.1 Visual Inspection Contact Sheet (Revised)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #1a202c; }
+  h1 { text-align: center; color: #1a365d; margin-bottom: 5px; font-size: 24px; }
+  p.subtitle { text-align: center; color: #4a5568; margin-top: 0; margin-bottom: 25px; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; max-width: 1400px; margin: 0 auto; }
+  .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); padding: 16px; display: flex; flex-direction: column; }
+  .card h2 { font-size: 16px; margin: 0 0 10px 0; color: #2b6cb0; border-bottom: 2px solid #edf2f7; padding-bottom: 6px; }
+  .card .meta { font-size: 12px; color: #718096; margin-bottom: 12px; }
+  .card img { max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 4px; align-self: center; background: white; }
+  .card .caption { font-size: 12px; color: #4a5568; margin-top: 10px; line-height: 1.4; }
+  .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+  .badge-main { background: #c6f6d5; color: #22543d; }
+  .badge-app { background: #feebc8; color: #744210; }
+  .badge-pdf { background: #e2e8f0; color: #2d3748; }
+  .badge-revised { background: #e9d8fd; color: #553c9e; }
+  .full-width { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+  <h1>TrustEval: Scientific Figure Visual Inspection Sheet</h1>
+  <p class="subtitle">Phase 2B.1 Visual Revision — High-Resolution Previews from Verified Local Data Artifacts</p>
+  <div class="grid">
+    <div class="card">
+      <h2>Figure 1: Page 1 Teaser — Evaluator Paradigm and Trade-offs</h2>
+      <div class="meta"><span class="badge badge-main">Main Body: Page 1</span><span class="badge badge-revised">Revised Layout</span><span class="badge badge-pdf">Vector PDF + 300 DPI PNG</span> | 3.5 × 3.6 in</div>
+      <img src="fig1_teaser.png" alt="Figure 1 Teaser">
+      <div class="caption"><b>Fig. 1:</b> Concise multi-metric comparison cards below empirical prediction distributions. Highlights Qwen's highest judge AUROC (0.7529) vs. positive bias (0.751 vs. 0.338), SmolLM2's lowest judge MAE (0.1734) via low-variance anchor (&sigma;=0.028), and the Ensemble's peak rank concordance (&rho;=0.5903) and -40.6% MAE reduction, while accurately reporting held-out baseline lower Soft MSE (<b>0.0602</b>).</div>
+    </div>
+    <div class="card">
+      <h2>Figure 2: Reliability and Decile Calibration</h2>
+      <div class="meta"><span class="badge badge-main">Main Body: Section V</span><span class="badge badge-revised">Unblocked Legend</span><span class="badge badge-pdf">Vector PDF + 300 DPI PNG</span> | 3.5 × 3.8 in</div>
+      <img src="fig2_calibration.png" alt="Figure 2 Calibration">
+      <div class="caption"><b>Fig. 2:</b> 10-bin reliability diagrams and sample occupancy. Legend relocated to empty upper-left region to strictly prevent data overlap. Explicitly notes in callout: <i>"The baseline occupies one calibration bin; ECE = 0.0000 is a coarse one-bin aggregation result and does not establish reliable calibration."</i></div>
+    </div>
+    <div class="card">
+      <h2>Figure 3: Inter-Judge Disagreement vs. Evaluation Error</h2>
+      <div class="meta"><span class="badge badge-main">Main Body: Section VI</span><span class="badge badge-revised">Zero-Overlap Layout</span><span class="badge badge-pdf">Vector PDF + 300 DPI PNG</span> | 3.5 × 3.5 in</div>
+      <img src="fig3_disagreement.png" alt="Figure 3 Disagreement">
+      <div class="caption"><b>Fig. 3:</b> Dedicated statistical card separated above the scatter plot, completely eliminating point overlap. Accurately labels <i>"Linear fit; Pearson r = 0.313"</i> and clearly distinguishes Pearson <i>r</i> (0.3125, <i>p</i>=0.0271), non-significant Spearman &rho; (0.2302, <i>p</i>=0.1078), nested in-sample OLS (<i>F</i>=5.676), and descriptive 5-fold CV (&Delta;<i>R</i>&sup2;=+0.0805).</div>
+    </div>
+    <div class="card">
+      <h2>Figure 4: Continuous Distribution Alignment</h2>
+      <div class="meta"><span class="badge badge-app">Appendix F</span><span class="badge badge-pdf">Vector PDF + 300 DPI PNG</span> | 3.5 × 2.9 in</div>
+      <img src="fig4_density.png" alt="Figure 4 Density">
+      <div class="caption"><b>Fig. 4:</b> Empirical 20-bin step density overlay comparing Qwen, SmolLM2, and Ensemble against human ground truth without artificial smoothing. Clean single-column layout with unobstructed legend.</div>
+    </div>
+    <div class="card full-width">
+      <h2>Figure 5: Conceptual Selective Human Escalation Workflow</h2>
+      <div class="meta"><span class="badge badge-main">Main Body / Appendix</span><span class="badge badge-revised">Full-Width 2-Column Architecture</span><span class="badge badge-pdf">Vector PDF + 300 DPI PNG</span> | 7.0 × 2.8 in</div>
+      <img src="fig5_escalation.png" alt="Figure 5 Escalation">
+      <div class="caption"><b>Fig. 5:</b> Redesigned full-width horizontal flowchart detailing the 6 numbered steps: 1. Incoming Conversation, 2. Prompt Serialization, 3. Independent Judge Scoring (Qwen2.5-0.5B & SmolLM2-1.7B), 4. Disagreement & Prediction Extraction, 5. Decision Diamond (&Delta; < &tau;), and 6. Illustrative Routing (Tier 1: Auto Audit vs. Tier 2: Human Review). Prominent banner emphasizes that threshold &tau; is uncalibrated, low disagreement does not guarantee correctness, and the workflow is an illustrative conceptual proposal requiring independent validation.</div>
+    </div>
+  </div>
+</body>
+</html>

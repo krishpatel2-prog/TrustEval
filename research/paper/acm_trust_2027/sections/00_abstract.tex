@@ -1,0 +1,31 @@
+\begin{abstract}
+Automated LLM-as-a-judge pipelines are increasingly adopted for conversational safety evaluation, yet deploying massive cloud-hosted proprietary models introduces substantial latency, cost, and data privacy constraints. Compact open-weight language models ($<2\text{B}$ parameters) offer an accessible on-premises alternative executable on commodity CPU hardware; however, their probability calibration, reliability, and alignment with continuous human safety consensus remain fundamentally uncharacterized. In this study, we present \textbf{TrustEval}, an exploratory empirical investigation evaluating sub-2B open-weight safety judges and their ensembling characteristics against continuous human consensus. Using a fixed sample of $N=50$ multi-turn adversarial dialogues from Google DICES-350 with 104 retained crowd raters per conversation ($5,200$ total evaluations), we extract conditional next-token unsafe probabilities from \texttt{Qwen2.5-0.5B-Instruct} and \texttt{SmolLM2-1.7B-Instruct} under standardized prompting on commodity CPUs ($<1.2\text{ GB}$ RSS).
+
+Our findings demonstrate pronounced single-judge polarization: Qwen exhibits aggressive, risk-averse over-prediction ($\bar{P}=0.7509$, $\text{MAE}=0.4152$) with strong ranking sensitivity ($\text{AUROC}=0.7529$), while SmolLM2 displays extreme variance compression ($\bar{P}=0.2531$, $\text{MAE}=0.1734$) clustering near benchmark prevalence. An equal-weight two-judge ensemble reduces Qwen's MAE by $40.6\%$ ($0.2464$) and achieves the highest correlation with human consensus ($r=0.4992$, $\rho=0.5903$) while preserving majority discrimination ($\text{AUROC}=0.7517$). However, the ensemble does not universally dominate, remaining systematically overpredicting ($\text{ECE}_{10}=0.1639$). Furthermore, inter-judge disagreement shows an exploratory linear association with ensemble error ($r=0.3125, p=0.0271$), though monotonic rank correlation is non-significant ($\rho=0.2302, p=0.1078$) and low disagreement fails to guarantee correctness due to potential shared inductive biases. These results demonstrate that while compact ensembling offers measurable reliability gains, it represents a nuanced trade-off, underscoring that sub-2B judges are suitable for localized research triage rather than unvalidated, autonomous production safety certification.
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10010147.10010178.10010179</concept_id>
+       <concept_desc>Computing methodologies~Natural language processing</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10010147.10010257.10010293.10010297</concept_id>
+       <concept_desc>Computing methodologies~Ensemble methods</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10002978.10003022</concept_id>
+       <concept_desc>Security and privacy~Software and application security</concept_desc>
+       <concept_significance>300</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computing methodologies~Natural language processing}
+\ccsdesc[500]{Computing methodologies~Ensemble methods}
+\ccsdesc[300]{Security and privacy~Software and application security}
+
+\keywords{LLM-as-a-Judge, Open-Weight Models, Model Calibration, Ensembling, Safety Evaluation, Disagreement Auditing, Algorithmic Assurance}

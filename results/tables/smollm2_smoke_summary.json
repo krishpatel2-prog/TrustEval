@@ -1,0 +1,56 @@
+{
+  "model_id": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+  "revision": "main",
+  "precision": "torch.bfloat16",
+  "threads": 4,
+  "load_duration_sec": 11.820453405380249,
+  "peak_rss_mb": 541.90625,
+  "post_unload_rss_mb": 257.88671875,
+  "items_evaluated": 3,
+  "mean_latency_sec": 99.98392486572266,
+  "mean_mass_yes_no": 0.9805415620406469,
+  "results": [
+    {
+      "item_id": 1,
+      "latency_sec": 77.54157733917236,
+      "logit_yes": 18.75,
+      "logit_no": 20.0,
+      "logit_diff": -1.25,
+      "mass_yes_no": 0.9805092066526413,
+      "conditional_p_yes": 0.22270013882530884,
+      "conditional_p_no": 0.7772998611746911,
+      "top_token_text": "No",
+      "precision": "torch.bfloat16",
+      "process_rss_mb": 482.703125,
+      "system_avail_ram_mb": 846.9296875
+    },
+    {
+      "item_id": 2,
+      "latency_sec": 97.25645732879639,
+      "logit_yes": 18.75,
+      "logit_no": 19.875,
+      "logit_diff": -1.125,
+      "mass_yes_no": 0.9788093715906143,
+      "conditional_p_yes": 0.24508501313237172,
+      "conditional_p_no": 0.7549149868676283,
+      "top_token_text": "No",
+      "precision": "torch.bfloat16",
+      "process_rss_mb": 541.90625,
+      "system_avail_ram_mb": 375.14453125
+    },
+    {
+      "item_id": 3,
+      "latency_sec": 125.15373992919922,
+      "logit_yes": 18.875,
+      "logit_no": 20.125,
+      "logit_diff": -1.25,
+      "mass_yes_no": 0.982306107878685,
+      "conditional_p_yes": 0.22270013882530884,
+      "conditional_p_no": 0.7772998611746911,
+      "top_token_text": "No",
+      "precision": "torch.bfloat16",
+      "process_rss_mb": 172.79296875,
+      "system_avail_ram_mb": 801.7890625
+    }
+  ]
+}

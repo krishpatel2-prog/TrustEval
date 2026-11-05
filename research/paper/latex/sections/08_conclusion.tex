@@ -1,0 +1,19 @@
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+This paper presented \textbf{TrustEval}, an empirical investigation into the reliability, calibration, and ensembling characteristics of sub-2B open-weight language models deployed as automated conversational safety judges. Evaluating on a reconciled benchmark sample of $N=50$ multi-turn adversarial dialogues from Google DICES-350, our study evaluated whether compact, commodity CPU-executable models ($<1.2\text{ GB}$ RSS) can approximate continuous human safety consensus without cloud API dependencies.
+
+Our empirical findings demonstrate that individual small judges exhibit severe, opposing behavioral profiles: \texttt{Qwen2.5-0.5B-Instruct} operates as an aggressive, risk-averse detector ($\bar{P}=0.7509$) with high pointwise error ($\text{MAE}=0.4152$) but strong discriminative ranking acuity ($\text{AUROC}=0.7529$, $\rho=0.5680$), whereas \texttt{SmolLM2-1.7B-Instruct} suffers from extreme variance compression ($\bar{P}=0.2531$), achieving low pointwise error ($\text{MAE}=0.1734$) primarily through conservative prevalence anchoring. 
+
+An unweighted Two-Judge Ensemble substantially mitigates Qwen's positive hazard bias, cutting MAE by $40.6\%$ ($0.2464$) and Soft MSE by $67.6\%$ ($0.0713$), while achieving the strongest linear and monotonic alignment with human soft consensus ($r=\mathbf{0.4992}$, $\rho=\mathbf{0.5903}$) and preserving majority discrimination ($\text{AUROC}=0.7517$). However, the ensemble is not universally dominant: SmolLM2 achieves lower sample MAE, a trivial held-out prevalence baseline achieves lower squared error ($\text{Soft MSE}=0.0602$), and the ensemble remains systematically overpredicting ($\text{ECE}_{10}=0.1639$).
+
+Furthermore, we demonstrated that inter-judge disagreement ($\Delta$) serves as an informative exploratory candidate correlate of ensemble absolute error, showing a nominally significant linear association ($r=0.3125$, $p=0.0271$), explaining significant incremental variance in nested in-sample OLS regressions ($F(1, 46)=5.676$, $p=0.0214$), and producing a descriptive out-of-fold gain of $\Delta R^2_{\text{OOF}}=+0.0805$ in 5-fold cross-validation. However, disagreement did not order errors monotonically ($\rho=0.2302$, $p=0.1078$), and low disagreement cannot guarantee correctness due to potential shared failure modes or correlated blind spots.
+
+\textbf{Future Work:} Grounded in the boundaries identified by this investigation, future research should prioritize:
+\begin{enumerate}
+    \item \textbf{Benchmark Expansion and External Validation:} Evaluating across the complete 350-item DICES benchmark and independent out-of-distribution safety suites to establish demographic subgroup parity and cross-domain generalizability.
+    \item \textbf{Expanded Model Scaling and Diversity:} Benchmarking diverse model families across varying parameter regimes ($0.5\text{B}$ to $7\text{B}$) to systematically map the scaling frontier of automated safety juries.
+    \item \textbf{Learned Ensembling and Temperature Scaling:} Investigating temperature scaling, Platt calibration, and learned meta-weighting to rectify residual probability miscalibration.
+    \item \textbf{Operational Escalation Calibration:} Empirically optimizing decision thresholds ($\tau$) for selective human-in-the-loop escalation workflows under explicit institutional cost-utility trade-offs.
+    \item \textbf{Reasoning Elicitation and Quantized Execution:} Exploring concise chain-of-thought elicitation to improve complex safety reasoning while benchmarking 4-bit integer quantization (INT4) to accelerate edge throughput.
+\end{enumerate}

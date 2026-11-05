@@ -1,0 +1,53 @@
+\documentclass[sigconf,review,anonymous]{acmart}
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% ACM Conference Information Placeholders for ACM TRUST 2027
+\acmConference[ACM TRUST '27]{2027 ACM Conference on Trustworthy and Responsible AI and Computing Systems}{March 7--9, 2027}{Washington, D.C., USA}
+\acmYear{2027}
+\acmDOI{}
+\acmISBN{}
+
+%% Package imports
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{balance}
+
+\begin{document}
+
+\title{TrustEval: An Empirical Study of Ensemble Reliability in Small Open-Weight LLM Safety Judges}
+
+%% Double-blind review author formatting
+\author{Anonymous Author(s)}
+\affiliation{%
+  \institution{Institution Withheld for Double-Blind Peer Review}
+  \country{}
+}
+\email{}
+
+%% Abstract & CCS Concepts
+\input{sections/00_abstract}
+
+\maketitle
+
+%% Main Manuscript Sections (Strict 9-Page Maximum Budget)
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_dataset_methodology}
+\input{sections/04_results}
+\input{sections/05_discussion_limitations}
+\input{sections/06_conclusion}
+
+%% References (Unlimited Extra Pages Permitted by ACM TRUST)
+\balance
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+%% Mandatory Disclosures (Unlimited Extra Pages Permitted by ACM TRUST)
+\input{disclosures/genai_disclosure}
+
+\end{document}

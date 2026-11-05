@@ -1,0 +1,88 @@
+{
+  "environment": {
+    "python_version": "3.12.7 (tags/v3.12.7:0b05ead, Oct  1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]",
+    "pytorch_version": "2.13.0+cpu",
+    "transformers_version": "5.13.1",
+    "platform": "win32"
+  },
+  "smollm_vs_ensemble_mae": {
+    "mean_diff": -0.07296873806057902,
+    "cohens_dz": -0.3365695559509187,
+    "t_stat": -2.379906153538397,
+    "t_pval_unadj": 0.021253144164766404,
+    "t_pval_holm_m6": 0.04250628832953281,
+    "wilcoxon_stat": 427.0,
+    "wilcoxon_z": -2.03201516097784,
+    "wilcoxon_r": -0.2873703399602609,
+    "wilcoxon_pval_unadj": 0.04214493294246403,
+    "wilcoxon_pval_holm_m6": 0.08428986588492807,
+    "sign_test": {
+      "n_smollm_better": 36,
+      "n_ensemble_better": 14,
+      "n_ties": 0,
+      "pvalue": 0.0026021714567221466
+    },
+    "item_bootstrap_2000_95ci": [
+      -0.12982446247286156,
+      -0.010137017801525509
+    ],
+    "rater_bootstrap_1000_mean": -0.06752535348654484,
+    "rater_bootstrap_1000_95ci": [
+      -0.09351632587198135,
+      -0.035494906608295684
+    ]
+  },
+  "qwen_vs_ensemble_mae": {
+    "mean_diff": 0.16879501362652796,
+    "cohens_dz": 0.9517916305476495,
+    "t_stat": 6.73018316236844,
+    "t_pval_unadj": 1.7371997535633213e-08,
+    "t_pval_holm_m6": 1.0423198521379927e-07,
+    "wilcoxon_stat": 146.5,
+    "wilcoxon_z": -4.739759829169214,
+    "wilcoxon_r": -0.6703032632802286,
+    "wilcoxon_pval_unadj": 2.138259807908549e-06,
+    "wilcoxon_pval_holm_m6": 1.0691299039542745e-05,
+    "item_bootstrap_2000_95ci": [
+      0.11812837202954592,
+      0.21530389465110944
+    ],
+    "rater_bootstrap_1000_mean": 0.1691582064964083,
+    "rater_bootstrap_1000_95ci": [
+      0.1534627485444656,
+      0.18525362673160553
+    ]
+  },
+  "smollm_vs_ensemble_mse": {
+    "mean_diff": -0.008502817463430462,
+    "cohens_dz": -0.06606602932382763,
+    "t_stat": -0.46715737340947816,
+    "t_pval_unadj": 0.6424580588157267,
+    "t_pval_holm_m6": 0.6424580588157267,
+    "item_bootstrap_2000_95ci": [
+      -0.04141967495936333,
+      0.02896604138515462
+    ],
+    "rater_bootstrap_1000_mean": -0.00829348604599684,
+    "rater_bootstrap_1000_95ci": [
+      -0.025566792124382412,
+      0.009094589044898531
+    ]
+  },
+  "qwen_vs_ensemble_mse": {
+    "mean_diff": 0.148948473767816,
+    "cohens_dz": 1.0949347707863026,
+    "t_stat": 7.7423580137993255,
+    "t_pval_unadj": 4.741928537448031e-10,
+    "t_pval_holm_m6": 2.845157122468819e-09,
+    "item_bootstrap_2000_95ci": [
+      0.11046651291343834,
+      0.18461494735924175
+    ],
+    "rater_bootstrap_1000_mean": 0.14873914235038238,
+    "rater_bootstrap_1000_95ci": [
+      0.13135106725948706,
+      0.166012448428768
+    ]
+  }
+}

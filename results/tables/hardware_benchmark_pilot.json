@@ -1,0 +1,24 @@
+[
+  {
+    "model_id": "meta-llama/Llama-3.2-1B-Instruct",
+    "family": "Llama",
+    "parameters": "1.23B",
+    "status": "skipped_gated_no_auth",
+    "notes": "Requires HF_TOKEN with accepted Meta community license."
+  },
+  {
+    "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+    "status": "failed_loading",
+    "error": "Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`"
+  },
+  {
+    "model_id": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+    "status": "failed_loading",
+    "error": "Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`"
+  },
+  {
+    "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+    "status": "failed_loading",
+    "error": "Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`"
+  }
+]
